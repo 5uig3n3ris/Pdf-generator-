@@ -86,7 +86,7 @@ def generate_pdf():
         pdf.chapter_body("\n".join(points))
 
     pdf_buffer = io.BytesIO()
-    pdf_output = pdf.output(dest='S').encode('latin1')
+    pdf_output = pdf.output(dest='S').encode('utf-8')
     pdf_buffer.write(pdf_output)
     pdf_buffer.seek(0)
 
