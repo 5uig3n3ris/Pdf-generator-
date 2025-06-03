@@ -86,7 +86,8 @@ def generate_pdf():
         pdf.chapter_body("\n".join(points))
 
     pdf_buffer = io.BytesIO()
-    pdf.output(pdf_buffer)
+    pdf_output = pdf.output(dest='S').encode('latin1')
+    pdf_buffer.write(pdf_output)
     pdf_buffer.seek(0)
 
     return send_file(pdf_buffer, as_attachment=True, download_name="WordPress_Security_Guide.pdf", mimetype='application/pdf')
