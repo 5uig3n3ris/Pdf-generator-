@@ -6,25 +6,27 @@ app = Flask(__name__)
 
 class PDF(FPDF):
     def header(self):
-        self.set_font("Arial", "B", 16)
+        self.add_font("DejaVu", "", "fonts/DejaVuSans.ttf", uni=True)
+        self.set_font("DejaVu", "", 16)
         self.set_text_color(33, 37, 41)
         self.cell(0, 10, "WordPress Security Guide for Clients", ln=True, align="C")
         self.ln(5)
-        self.set_font("Arial", "I", 12)
+        self.set_font("DejaVu", "", 12)
         self.cell(0, 10, "Keeping Your Website Safe & Secure", ln=True, align="C")
         self.ln(10)
 
     def chapter_title(self, title):
-        self.set_font("Arial", "B", 14)
+        self.set_font("DejaVu", "", 14)
         self.set_text_color(0, 102, 204)
         self.cell(0, 10, title, ln=True)
         self.ln(5)
 
     def chapter_body(self, body):
-        self.set_font("Arial", "", 12)
+        self.set_font("DejaVu", "", 12)
         self.set_text_color(50, 50, 50)
         self.multi_cell(0, 7, body)
         self.ln(5)
+
 
 sections = [
     ("1. Secure Your Login", [
