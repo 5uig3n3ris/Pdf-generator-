@@ -92,5 +92,10 @@ def generate_pdf():
 
     return send_file(pdf_buffer, as_attachment=True, download_name="WordPress_Security_Guide.pdf", mimetype='application/pdf')
 
+@app.errorhandler(Exception)
+def handle_exception(e):
+    return f"<h1>500 Error</h1><pre>{e}</pre>", 500
+    
+
 if __name__ == '__main__':
     app.run(debug=True)
