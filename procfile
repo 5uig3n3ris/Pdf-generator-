@@ -1,1 +1,2 @@
-web: gunicorn app:app
+web: python get_font.py && gunicorn app:app
+
