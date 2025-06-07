@@ -2,5 +2,7 @@ services:
   - type: web
     name: wordpress-security-guide
     env: python
-    buildCommand: "pip install -r requirements.txt"
-    startCommand: "python get-pdf.py && gunicorn app:app"
+    buildCommand: |
+      pip install -r requirements.txt
+      python get_pdf.py
+    startCommand: gunicorn app:app
