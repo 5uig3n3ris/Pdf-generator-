@@ -1,2 +1,2 @@
-web: python get_pdf.py && gunicorn app:app
+web: gunicorn app:app
 
