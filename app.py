@@ -1,12 +1,21 @@
 from flask import Flask, send_file, render_template_string, request
 from fpdf import FPDF
 import io
+import os
 
 app = Flask(__name__)
 
+# Path to the font file
+FONT_PATH = "fonts/DejaVuSans.ttf"
+
+# Ensure font file exists
+if not os.path.exists(FONT_PATH):
+    raise FileNotFoundError(f"Font not found at {FONT_PATH}. Please ensure 'DejaVuSans.ttf' is in the 'fonts' directory.")
+
+# PDF Generator Class
 class PDF(FPDF):
     def header(self):
-        self.add_font("DejaVu", "", "fonts/DejaVuSans.ttf", uni=True)
+        self.add_font("DejaVu", "", FONT_PATH, uni=True)
         self.set_font("DejaVu", "", 16)
         self.set_text_color(33, 37, 41)
         self.cell(0, 10, "WordPress Security Guide for Clients", ln=True, align="C")
@@ -27,7 +36,7 @@ class PDF(FPDF):
         self.multi_cell(0, 7, body)
         self.ln(5)
 
-
+# Content Sections
 sections = [
     ("1. Secure Your Login", [
         "- Use a strong password (12+ characters with a mix of letters, numbers, and symbols).",
@@ -68,6 +77,7 @@ sections = [
     ])
 ]
 
+# Homepage
 @app.route('/')
 def home():
     return render_template_string('''
@@ -77,27 +87,38 @@ def home():
         </form>
     ''')
 
+# PDF Generation Endpoint
 @app.route('/generate_pdf', methods=['POST'])
 def generate_pdf():
-    pdf = PDF()
-    pdf.set_auto_page_break(auto=True, margin=15)
-    pdf.add_page()
+    try:
+        pdf = PDF()
+        pdf.set_auto_page_break(auto=True, margin=15)
+        pdf.add_page()
 
-    for title, points in sections:
-        pdf.chapter_title(title)
-        pdf.chapter_body("\n".join(points))
+        for title, points in sections:
+            pdf.chapter_title(title)
+            pdf.chapter_body("\n".join(points))
 
-    pdf_buffer = io.BytesIO()
-    pdf_output = pdf.output(dest='S').encode('utf-8')
-    pdf_buffer.write(pdf_output)
-    pdf_buffer.seek(0)
+        pdf_buffer = io.BytesIO()
+        pdf_output = pdf.output(dest='S').encode('utf-8')
+        pdf_buffer.write(pdf_output)
+        pdf_buffer.seek(0)
 
-    return send_file(pdf_buffer, as_attachment=True, download_name="WordPress_Security_Guide.pdf", mimetype='application/pdf')
+        return send_file(
+            pdf_buffer,
+            as_attachment=True,
+            download_name="WordPress_Security_Guide.pdf",
+            mimetype='application/pdf'
+        )
+    except Exception as e:
+        app.logger.error(f"PDF generation failed: {e}")
+        return "<h1>Error</h1><p>There was a problem generating the PDF. Please try again later.</p>", 500
 
-@app.errorhandler(Exception)
-def handle_exception(e):
-    return f"<h1>500 Error</h1><pre>{e}</pre>", 500
-    
+# Global Error Handler (cleaner for production)
+@app.errorhandler(500)
+def handle_500(e):
+    return "<h1>Internal Server Error</h1><p>Please try again later or contact support.</p>", 500
 
+# Run the app
 if __name__ == '__main__':
     app.run(debug=True)
